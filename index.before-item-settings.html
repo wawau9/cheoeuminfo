@@ -1,0 +1,299 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>에스테틱 처음 · 고객 관리</title>
+<style>
+:root{--ink:#293f36;--muted:#617168;--green:#365d4c;--line:#dce3dc}
+*{box-sizing:border-box}body{margin:0;background:#f6f7f2;color:var(--ink);font-family:system-ui,"Malgun Gothic",sans-serif;line-height:1.65}
+header,main,footer{width:min(100%,900px);margin:auto;padding:24px}header{padding-top:38px;padding-bottom:12px}
+h1,h2,h3,p{margin:0}h1{font-size:28px;letter-spacing:-1px;margin-top:8px}h2{font-size:23px;letter-spacing:-.6px;overflow-wrap:anywhere}h3{font-size:18px}
+.sub,small{color:var(--muted)}.badge{display:inline-block;border:1px solid var(--line);border-radius:20px;padding:3px 12px;font-size:12px}
+.notice{background:#ecefe5;border-radius:10px;padding:11px 15px;font-size:13px;margin-top:20px}
+section.panel{padding:28px;background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 5px 25px #293f3604}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.heading{justify-content:space-between;margin-bottom:22px}.heading p{margin-top:4px}
+button,input,textarea{font:inherit}button{border:1px solid #bdcbc1;background:white;color:var(--ink);border-radius:9px;min-height:44px;padding:10px 16px;cursor:pointer}
+button:hover{background:#f0f5ef}button.primary{color:white;background:var(--green);border-color:var(--green)}button.primary:hover{background:#294a3b}
+button.danger{color:#a13336;border-color:#ddbbbb}button:disabled{opacity:.5;cursor:not-allowed}
+.back{padding:6px 0;margin-bottom:16px;border:0;background:transparent;color:var(--muted)}:focus-visible{outline:3px solid #8aaf99;outline-offset:3px}
+input:not([type=checkbox]),textarea{width:100%;min-width:0;border:1px solid #b8c6bc;border-radius:9px;padding:12px;background:white;color:var(--ink)}textarea{resize:vertical;min-height:140px}
+label.field-label{display:block;margin:19px 0 6px;font-weight:600}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}fieldset{border:0;padding:0;margin:0;min-width:0}
+.actions{margin-top:26px;padding-top:20px;border-top:1px solid var(--line)}#customers{padding:0;margin:16px 0 0;list-style:none}#customers li+li{margin-top:10px}
+.customer{width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:17px 18px}.customer strong,.customer .phone{display:block;overflow-wrap:anywhere}
+.customer strong{font-size:17px}.customer .phone{color:var(--muted);font-size:14px}.customer .date{font-size:13px;color:var(--muted);text-align:right}
+.empty{text-align:center;padding:40px 12px;color:var(--muted);background:#f8faf7;border-radius:10px}#count{font-size:13px;margin-top:12px}
+.info{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:22px;background:#f5f8f3;border-radius:12px;margin-top:20px}dt{color:var(--muted);font-size:13px}dd{margin:4px 0 0;overflow-wrap:anywhere}
+.full{grid-column:1/-1}.memo{white-space:pre-wrap;overflow-wrap:anywhere}.history{margin-top:32px;padding-top:26px;border-top:1px solid var(--line)}.history .heading{margin-bottom:18px}
+.visit-card{border:1px solid var(--line);border-radius:12px;padding:20px;margin-top:14px}.visit-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.visit-top time{font-weight:700;font-size:17px}.visit-top button{font-size:13px;padding:6px 12px}.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}.tag{padding:3px 10px;border-radius:6px;background:#eaf0e6;color:#355543;font-size:13px}
+.choices{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.choice{cursor:pointer;position:relative}.choice input{position:absolute;opacity:0;width:1px;height:1px}
+.choice span{display:block;padding:10px 18px;border:1px solid #bdcbc1;border-radius:9px;min-height:44px}.choice input:checked+span{background:var(--green);color:white;border-color:var(--green)}
+.choice input:focus-visible+span{outline:3px solid #8aaf99;outline-offset:3px}.choice input:disabled+span{opacity:.5;cursor:not-allowed}
+#status{border-radius:10px;background:#e9f1e6;padding:12px 16px;margin-bottom:18px;overflow-wrap:anywhere}#status.error{background:#fff0ec;color:#922e30}
+footer{color:var(--muted);font-size:12px;padding-top:0;padding-bottom:32px}[hidden]{display:none!important}
+@media(max-width:600px){header,main,footer{padding-left:16px;padding-right:16px}header{padding-top:24px}section.panel{padding:20px}h1{font-size:25px}h2{font-size:21px}.form-grid,.info{grid-template-columns:1fr}.customer{align-items:flex-start;padding:14px}.customer .date{max-width:110px}.info{padding:18px;gap:16px}.choice span{padding:10px 15px}}
+</style>
+</head>
+<body>
+<header>
+<span class="badge">부산 양정 · 원장님용</span>
+<h1>에스테틱 처음</h1><p class="sub">고객의 이야기와 방문 기록을 한곳에.</p>
+<p class="notice"><strong>가상 데이터용 로컬 테스트 버전</strong> · 실제 개인정보는 입력하지 마세요.</p>
+</header>
+<main>
+<p id="status" role="status" aria-live="polite" hidden></p>
+<section id="list-screen" class="panel" aria-labelledby="list-title">
+  <div class="row heading"><div><h2 id="list-title" tabindex="-1">고객 목록</h2><p class="sub">고객을 선택하면 상세정보를 볼 수 있어요.</p></div>
+  <button id="new-customer" type="button" class="primary" data-write>+ 고객 등록</button></div>
+  <label for="search" class="field-label">이름·연락처 검색</label>
+  <input id="search" type="search" placeholder="이름 또는 연락처 일부를 입력하세요" autocomplete="off">
+  <p id="count" class="sub" aria-live="polite"></p><ul id="customers"></ul><p id="list-empty" class="empty" hidden></p>
+</section>
+<section id="customer-screen" class="panel" aria-labelledby="customer-title" hidden>
+  <button id="customer-back" type="button" class="back">← 돌아가기</button>
+  <h2 id="customer-title" tabindex="-1">고객 등록</h2><p class="sub">이름, 연락처, 최초 방문일은 필수 항목입니다.</p>
+  <form id="customer-form" autocomplete="off"><fieldset id="customer-fields">
+    <div class="form-grid">
+      <div><label for="name" class="field-label">이름 *</label><input id="name" required maxlength="50" placeholder="예: 가상손님 봄"></div>
+      <div><label for="phone" class="field-label">연락처 *</label><input id="phone" type="tel" required maxlength="20" inputmode="tel" placeholder="예: 010-0000-0001"></div>
+    </div>
+    <label for="first-visit" class="field-label">최초 방문일 *</label><input id="first-visit" type="date" required>
+    <label for="basic-memo" class="field-label">기본 메모</label><textarea id="basic-memo" maxlength="10000" placeholder="상담 내용이나 고객의 특이사항을 기록하세요."></textarea>
+    <div class="row actions"><button type="submit" class="primary" data-write>저장하기</button><button id="customer-cancel" type="button">취소</button></div>
+  </fieldset></form>
+</section>
+<section id="detail-screen" class="panel" aria-labelledby="detail-title" hidden>
+  <button id="detail-back" type="button" class="back">← 고객 목록</button>
+  <div class="row heading"><div><p class="sub">고객 상세정보</p><h2 id="detail-title" tabindex="-1"></h2></div><button id="edit-customer" type="button" data-write>기본정보 수정</button></div>
+  <dl class="info"><div><dt>연락처</dt><dd id="detail-phone"></dd></div><div><dt>최초 방문일</dt><dd id="detail-first-visit"></dd></div><div class="full"><dt>기본 메모</dt><dd id="detail-memo" class="memo"></dd></div></dl>
+  <div class="history"><div class="row heading"><div><h3>방문별 관리 기록</h3><p class="sub">최근 방문일부터 표시합니다.</p></div><button id="new-visit" type="button" class="primary" data-write>+ 관리 기록 추가</button></div>
+    <div id="visit-list"></div><p id="visit-empty" class="empty">아직 관리 기록이 없습니다.<br>방문한 날의 관리 내용을 남겨보세요.</p>
+  </div>
+  <div class="actions"><button id="delete-customer" type="button" class="danger" data-write>고객 삭제</button></div>
+</section>
+<section id="visit-screen" class="panel" aria-labelledby="visit-title" hidden>
+  <button id="visit-back" type="button" class="back">← 고객 상세정보</button><h2 id="visit-title" tabindex="-1">관리 기록 추가</h2><p id="visit-customer" class="sub"></p>
+  <form id="visit-form" autocomplete="off"><fieldset id="visit-fields">
+    <label for="visit-date" class="field-label">방문일 *</label><input id="visit-date" type="date" required>
+    <fieldset style="margin-top:22px"><legend><strong>관리 항목 *</strong></legend><p class="sub" id="items-help">해당하는 항목을 모두 선택하세요.</p><div id="item-choices" class="choices" aria-describedby="items-help"></div></fieldset>
+    <label for="visit-memo" class="field-label">자유 메모</label><textarea id="visit-memo" maxlength="10000" placeholder="이번 방문의 관리 내용과 특이사항을 자유롭게 기록하세요."></textarea>
+    <div class="row actions"><button type="submit" class="primary" data-write>기록 저장하기</button><button id="visit-cancel" type="button">취소</button></div>
+  </fieldset></form>
+</section>
+</main>
+<footer>정보는 현재 기기의 현재 브라우저에 저장됩니다. 같은 위치의 index.html을 같은 브라우저로 열어주세요.<br>브라우저 데이터 삭제·시크릿 모드에서는 기록이 유지되지 않을 수 있습니다. 기기 간 공유와 정기 백업 기능은 없습니다.</footer>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+// 기존 저장 키와 고객의 최초 방문일(visit) 필드를 유지합니다.
+const KEY = "esthetic-cheoeum-customers-v1";
+const BACKUP_KEY = KEY + ":before-visits-v2";
+const ITEMS = ["여드름", "주름", "미백", "보습", "진정", "리프팅", "바디", "기타"];
+let customers = [], selectedId = null, editingCustomerId = null, editingVisitId = null;
+let screen = "list", baseline = "", blocked = false, lastRaw = null, blockReason = "";
+function today() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function uid(prefix) { return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`; }
+function digits(text) { return text.replace(/\D/g, ""); }
+function textElement(tag, text, className = "") {
+  const element = document.createElement(tag);
+  element.textContent = text;
+  if (className) element.className = className;
+  return element;
+}
+function message(text = "", error = false) {
+  $("status").textContent = text; $("status").hidden = !text;
+  $("status").classList.toggle("error", error);
+}
+function customerData() {
+  return { name:$("name").value.trim(), phone:$("phone").value.trim(), visit:$("first-visit").value, memo:$("basic-memo").value };
+}
+function visitData() {
+  return { date:$("visit-date").value, items:Array.from(document.querySelectorAll(".choice input:checked"), el => el.value), memo:$("visit-memo").value };
+}
+function snapshot() {
+  if (screen === "customer") return JSON.stringify(customerData());
+  if (screen === "visit") return JSON.stringify(visitData());
+  return "";
+}
+function dirty() { return snapshot() !== baseline; }
+function mayLeave() { return !dirty() || confirm("저장하지 않은 내용이 있습니다. 변경 내용을 버릴까요?"); }
+function switchScreen(next, focus = true) {
+  screen = next;
+  for (const name of ["list", "customer", "detail", "visit"]) $(name + "-screen").hidden = name !== next;
+  baseline = snapshot(); message(blocked ? blockReason : "",blocked);
+  if (focus) {
+    const title = $(({list:"list-title",customer:"customer-title",detail:"detail-title",visit:"visit-title"})[next]);
+    title.focus({preventScroll:true}); window.scrollTo({top:0,behavior:"instant"});
+  }
+}
+function currentCustomer() { return customers.find(c => c.id === selectedId); }
+function blockSaving(text) {
+  blocked = true; blockReason = text; $("customer-fields").disabled = true; $("visit-fields").disabled = true;
+  document.querySelectorAll("[data-write]").forEach(el => { el.disabled = true; }); message(text,true);
+}
+function persist(next) {
+  if (blocked) return false;
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw !== lastRaw) {
+      blockSaving("다른 창에서 저장 정보가 변경되었습니다. 입력 중인 내용을 따로 복사한 뒤 새로고침하세요. 덮어쓰기를 막기 위해 저장을 중지했습니다."); return false;
+    }
+    // 첫 변경 직전의 기존 원본을 별도 키에 보관하며 기존 백업은 덮어쓰지 않습니다.
+    if (raw !== null && localStorage.getItem(BACKUP_KEY) === null) localStorage.setItem(BACKUP_KEY,raw);
+    const serialized = JSON.stringify(next);
+    localStorage.setItem(KEY,serialized); lastRaw = serialized; customers = next; return true;
+  } catch {
+    message("저장하지 못했습니다. 브라우저 저장 설정과 남은 공간을 확인하세요. 입력 내용은 그대로 남아 있습니다.",true); return false;
+  }
+}
+function validVisit(v) {
+  return v && typeof v.id === "string" && typeof v.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.date) &&
+    Array.isArray(v.items) && v.items.every(i => ITEMS.includes(i)) && typeof v.memo === "string";
+}
+function validCustomer(c) {
+  return c && typeof c.id === "string" && typeof c.name === "string" && c.name.trim().length > 0 &&
+    typeof c.phone === "string" && typeof c.visit === "string" && /^\d{4}-\d{2}-\d{2}$/.test(c.visit) && typeof c.memo === "string" &&
+    (c.visits === undefined || (Array.isArray(c.visits) && c.visits.every(validVisit) && new Set(c.visits.map(v => v.id)).size === c.visits.length));
+}
+function renderList() {
+  const query = $("search").value.trim().toLocaleLowerCase();
+  const phoneQuery = digits(query), phoneOnly = /^[\d\s()+-]+$/.test(query);
+  const visible = customers.filter(c => !query || c.name.toLocaleLowerCase().includes(query) || c.phone.includes(query) ||
+    (phoneOnly && phoneQuery && digits(c.phone).includes(phoneQuery))).sort((a,b) => a.name.localeCompare(b.name,"ko"));
+  $("count").textContent = query ? `검색 결과 ${visible.length}명 / 전체 ${customers.length}명` : `전체 ${customers.length}명`;
+  $("customers").replaceChildren(); $("list-empty").hidden = visible.length > 0;
+  $("list-empty").textContent = customers.length ? "검색된 고객이 없습니다." : "등록된 고객이 없습니다. 고객 등록 버튼을 눌러주세요.";
+  visible.forEach(c => {
+    const li = document.createElement("li"), button = document.createElement("button");
+    button.type = "button"; button.className = "customer";
+    const info = document.createElement("span"); info.append(textElement("strong",c.name),textElement("span",c.phone,"phone"));
+    button.append(info,textElement("span",`첫 방문 ${c.visit}  ›`,"date"));
+    button.addEventListener("click",() => { selectedId = c.id; showDetail(); });
+    li.append(button); $("customers").append(li);
+  });
+}
+function showList(focus = true) { renderList(); switchScreen("list",focus); }
+function showCustomerForm(customer = null) {
+  if (blocked) return;
+  editingCustomerId = customer ? customer.id : null;
+  $("customer-title").textContent = customer ? "기본정보 수정" : "고객 등록";
+  $("name").value = customer ? customer.name : ""; $("phone").value = customer ? customer.phone : "";
+  $("phone").setCustomValidity(""); $("first-visit").value = customer ? customer.visit : today();
+  $("first-visit").max = today(); $("basic-memo").value = customer ? customer.memo : ""; switchScreen("customer");
+}
+function showDetail() {
+  const c = currentCustomer(); if (!c) { showList(); return; }
+  $("detail-title").textContent = c.name; $("detail-phone").textContent = c.phone; $("detail-first-visit").textContent = c.visit;
+  $("detail-memo").textContent = c.memo || "등록된 기본 메모가 없습니다.";
+  $("visit-list").replaceChildren(); $("visit-empty").hidden = c.visits.length > 0;
+  [...c.visits].sort((a,b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id)).forEach(v => {
+    const card = document.createElement("article"); card.className = "visit-card";
+    const top = document.createElement("div"); top.className = "visit-top";
+    const date = textElement("time",v.date); date.dateTime = v.date;
+    const actions = document.createElement("div"); actions.className = "row";
+    const edit = textElement("button","수정"), remove = textElement("button","삭제","danger");
+    for (const button of [edit,remove]) { button.type = "button"; button.dataset.write = ""; button.disabled = blocked; }
+    edit.setAttribute("aria-label",`${v.date} 관리 기록 수정`); remove.setAttribute("aria-label",`${v.date} 관리 기록 삭제`);
+    edit.addEventListener("click",() => showVisitForm(v)); remove.addEventListener("click",() => deleteVisit(v.id));
+    actions.append(edit,remove); top.append(date,actions);
+    const tags = document.createElement("div"); tags.className = "tags";
+    v.items.forEach(item => tags.append(textElement("span",item,"tag")));
+    card.append(top,tags,textElement("p",v.memo || "등록된 메모가 없습니다.","memo")); $("visit-list").append(card);
+  });
+  switchScreen("detail");
+}
+function showVisitForm(visit = null) {
+  if (blocked) return; const c = currentCustomer(); if (!c) return;
+  editingVisitId = visit ? visit.id : null;
+  $("visit-title").textContent = visit ? "관리 기록 수정" : "관리 기록 추가";
+  $("visit-customer").textContent = `${c.name}님의 방문별 관리 기록`;
+  $("visit-date").value = visit ? visit.date : today(); $("visit-date").max = today();
+  document.querySelectorAll(".choice input").forEach(el => { el.checked = Boolean(visit && visit.items.includes(el.value)); });
+  $("visit-memo").value = visit ? visit.memo : ""; switchScreen("visit");
+}
+function cancelCustomer() { if (mayLeave()) { if (editingCustomerId) showDetail(); else showList(); } }
+function cancelVisit() { if (mayLeave()) showDetail(); }
+function deleteVisit(id) {
+  if (blocked) return; const c = currentCustomer(), visit = c && c.visits.find(v => v.id === id);
+  if (!visit || !confirm(`${visit.date} 관리 기록을 삭제할까요?\n삭제한 기록은 되돌릴 수 없습니다.`)) return;
+  const next = customers.map(item => item.id === c.id ? {...item,visits:item.visits.filter(v => v.id !== id)} : item);
+  if (persist(next)) { showDetail(); message("관리 기록을 삭제했습니다."); }
+}
+ITEMS.forEach(item => {
+  const label = document.createElement("label"); label.className = "choice";
+  const input = document.createElement("input"); input.type = "checkbox"; input.name = "items"; input.value = item;
+  label.append(input,textElement("span",item)); $("item-choices").append(label);
+});
+$("search").addEventListener("input",renderList);
+$("new-customer").addEventListener("click",() => showCustomerForm());
+$("customer-back").addEventListener("click",cancelCustomer); $("customer-cancel").addEventListener("click",cancelCustomer);
+$("detail-back").addEventListener("click",() => showList());
+$("edit-customer").addEventListener("click",() => showCustomerForm(currentCustomer()));
+$("new-visit").addEventListener("click",() => showVisitForm());
+$("visit-back").addEventListener("click",cancelVisit); $("visit-cancel").addEventListener("click",cancelVisit);
+$("phone").addEventListener("input",() => $("phone").setCustomValidity(""));
+$("customer-form").addEventListener("submit",event => {
+  event.preventDefault(); if (blocked || !$("customer-form").reportValidity()) return;
+  const data = customerData();
+  if (!data.name) { message("이름을 입력해 주세요.",true); $("name").focus(); return; }
+  if (!/^[\d\s()+-]+$/.test(data.phone) || digits(data.phone).length < 8 || digits(data.phone).length > 15) {
+    $("phone").setCustomValidity("연락처를 숫자 8~15자리로 입력하세요. 하이픈과 공백도 사용할 수 있습니다."); $("phone").reportValidity(); return;
+  }
+  if (data.visit > today()) { message("최초 방문일은 오늘 또는 이전 날짜로 입력해 주세요.",true); return; }
+  const old = customers.find(c => c.id === editingCustomerId);
+  // 기존 고객 속성과 방문 기록은 유지하고 기본정보만 변경합니다.
+  const record = old ? {...old,...data} : {id:uid("customer"),...data,visits:[]};
+  const next = old ? customers.map(c => c.id === old.id ? record : c) : [...customers,record];
+  if (!persist(next)) return; selectedId = record.id; showDetail(); message(old ? "기본정보를 수정했습니다." : "고객을 등록했습니다.");
+});
+$("visit-form").addEventListener("submit",event => {
+  event.preventDefault(); if (blocked || !$("visit-form").reportValidity()) return;
+  const c = currentCustomer(), data = visitData(); if (!c) return;
+  if (data.date > today()) { message("방문일은 오늘 또는 이전 날짜로 입력해 주세요.",true); return; }
+  if (!data.items.length) { message("관리 항목을 하나 이상 선택해 주세요.",true); document.querySelector(".choice input").focus(); return; }
+  const old = c.visits.find(v => v.id === editingVisitId);
+  const record = old ? {...old,...data} : {id:uid("visit"),...data};
+  const visits = old ? c.visits.map(v => v.id === old.id ? record : v) : [...c.visits,record];
+  if (!persist(customers.map(item => item.id === c.id ? {...item,visits} : item))) return;
+  showDetail(); message(old ? "관리 기록을 수정했습니다." : "관리 기록을 추가했습니다.");
+});
+$("delete-customer").addEventListener("click",() => {
+  if (blocked) return; const c = currentCustomer();
+  if (!c || !confirm(`${c.name}님의 고객 정보와 방문별 관리 기록 ${c.visits.length}건을 모두 삭제할까요?\n삭제한 정보는 되돌릴 수 없습니다.`)) return;
+  if (persist(customers.filter(item => item.id !== c.id))) { selectedId = null; showList(); message("고객 정보를 삭제했습니다."); }
+});
+window.addEventListener("beforeunload",event => { if (dirty()) { event.preventDefault(); event.returnValue = ""; } });
+window.addEventListener("storage",event => {
+  if (event.key === KEY || event.key === null) blockSaving("다른 창에서 저장 정보가 변경되었습니다. 입력 내용을 따로 복사한 뒤 새로고침하세요. 덮어쓰기를 막기 위해 저장을 중지했습니다.");
+});
+try {
+  lastRaw = localStorage.getItem(KEY);
+  if (lastRaw === null) {
+    const samples = [
+      {id:"sample-1",name:"가상손님 봄",phone:"010-0000-0001",visit:"2026-11-01",memo:"가상 상담 기록입니다. 보습 관리 상담.",visits:[
+        {id:"sample-visit-1",date:"2026-11-01",items:["보습","진정"],memo:"테스트용 첫 방문 기록입니다. 보습과 진정 관리를 진행한 것으로 가정합니다."},
+        {id:"sample-visit-2",date:"2026-11-03",items:["보습"],memo:"테스트용 두 번째 방문 기록입니다."}
+      ]},
+      {id:"sample-2",name:"가상손님 여름",phone:"010-0000-0002",visit:"2026-11-03",memo:"화면 테스트용 가상 정보입니다.",visits:[]}
+    ];
+    const raw = JSON.stringify(samples); localStorage.setItem(KEY,raw); lastRaw = raw; customers = samples;
+  } else {
+    const parsed = JSON.parse(lastRaw);
+    if (!Array.isArray(parsed) || !parsed.every(validCustomer) || new Set(parsed.map(c => c.id)).size !== parsed.length) throw new Error("Invalid storage");
+    // 구버전은 메모리에서만 변환합니다. 저장 버튼을 누르기 전에는 원본을 변경하지 않습니다.
+    customers = parsed.map(c => ({...c,visits:c.visits === undefined ? [] : c.visits}));
+  }
+  showList(false);
+} catch {
+  showList(false);
+  blockSaving("저장 공간에 접근할 수 없거나 데이터 형식에 문제가 있습니다. 기존 데이터를 보호하기 위해 저장을 중지했습니다. 브라우저 설정을 확인해 주세요. 기존 데이터는 덮어쓰지 않았습니다.");
+}
+</script>
+</body>
+</html>
+

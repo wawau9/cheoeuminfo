@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>에스테틱 처음 · 손님 관리</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #f7f7f2; color: #283c35;
+    font-family: system-ui, "Malgun Gothic", sans-serif;
+    line-height: 1.6;
+  }
+  header, main, footer { max-width: 1060px; margin: auto; padding: 24px; }
+  header { padding-top: 40px; }
+  h1 { margin: 0; font-size: 28px; letter-spacing: -1px; }
+  h2 { margin: 0 0 20px; font-size: 20px; }
+  p { margin: 8px 0; }
+  .sub, small { color: #61736b; }
+  .badge {
+    display: inline-block; background: #e5ece6;
+    padding: 4px 12px; border-radius: 20px; font-size: 13px;
+  }
+  .notice {
+    margin-top: 18px; padding: 14px 18px; background: #eeeee5;
+    border-radius: 12px; font-size: 14px;
+  }
+  main { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  section {
+    background: white; border: 1px solid #dfe5df;
+    border-radius: 18px; padding: 26px;
+  }
+  label { display: block; margin: 16px 0 6px; font-weight: 600; }
+  input, textarea, button { font: inherit; }
+  input, textarea {
+    width: 100%; padding: 12px; border: 1px solid #b8c5bd;
+    border-radius: 9px; background: white; color: #283c35;
+  }
+  textarea { min-height: 150px; resize: vertical; }
+  button {
+    padding: 11px 16px; border: 1px solid #c5d0c8;
+    border-radius: 9px; background: white; color: #283c35;
+    cursor: pointer; min-height: 44px;
+  }
+  button:hover { background: #eef3ee; }
+  button.primary { background: #355c4c; border-color: #355c4c; color: white; }
+  button.danger { color: #a12f30; border-color: #dfbabc; }
+  :focus-visible { outline: 3px solid #8eae9c; outline-offset: 3px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .heading { justify-content: space-between; margin-bottom: 18px; }
+  .heading h2 { margin: 0; }
+  .actions { margin-top: 24px; }
+  #customers { list-style: none; margin: 16px 0 0; padding: 0; }
+  #customers li { margin-bottom: 10px; }
+  .customer {
+    width: 100%; text-align: left; padding: 16px;
+    display: flex; justify-content: space-between; gap: 12px;
+  }
+  .customer[aria-pressed="true"] {
+    background: #edf4ed; border-color: #355c4c;
+  }
+  .customer strong, .customer span { display: block; overflow-wrap: anywhere; }
+  .customer small { white-space: nowrap; }
+  #empty { text-align: center; padding: 35px 0; }
+  #status { min-height: 26px; margin-top: 14px; font-weight: 600; }
+  #status.error { color: #a12f30; }
+  footer { font-size: 13px; color: #61736b; padding-top: 0; }
+  [hidden] { display: none !important; }
+  @media (max-width: 720px) {
+    main { grid-template-columns: 1fr; padding-top: 8px; }
+    header, main, footer { padding-left: 16px; padding-right: 16px; }
+    section { padding: 20px; }
+    h1 { font-size: 25px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <span class="badge">부산 양정 · 원장님용</span>
+  <h1>에스테틱 처음</h1>
+  <p class="sub">손님과 나눈 이야기를 차곡차곡 기록하세요.</p>
+  <div class="notice">
+    <strong>가상 데이터로 사용하는 로컬 테스트 버전입니다.</strong><br>
+    정보는 현재 기기의 현재 브라우저에만 저장됩니다.
+    실제 손님 개인정보는 입력하지 마세요.
+  </div>
+</header>
+
+<main>
+  <section aria-labelledby="list-title">
+    <div class="row heading">
+      <h2 id="list-title">손님 목록</h2>
+      <button type="button" id="new">+ 손님 등록</button>
+    </div>
+    <label for="search">이름·연락처 검색</label>
+    <input id="search" type="search"
+      placeholder="이름 또는 연락처 일부를 입력하세요" autocomplete="off">
+    <p id="count" class="sub" aria-live="polite"></p>
+    <ul id="customers"></ul>
+    <p id="empty" hidden>검색된 손님이 없습니다.</p>
+  </section>
+
+  <section aria-labelledby="form-title">
+    <h2 id="form-title">손님 등록</h2>
+    <small>이름, 연락처, 최초 방문일은 필수 항목입니다.</small>
+    <form id="form" autocomplete="off">
+      <fieldset id="fields" style="border:0;padding:0;margin:0;min-width:0">
+        <label for="name">이름 *</label>
+        <input id="name" required maxlength="50" placeholder="예: 가상손님 봄">
+
+        <label for="phone">연락처 *</label>
+        <input id="phone" type="tel" required maxlength="20"
+          inputmode="tel" placeholder="예: 010-0000-0001">
+
+        <label for="visit">최초 방문일 *</label>
+        <input id="visit" type="date" required>
+
+        <label for="memo">자유 메모</label>
+        <textarea id="memo" maxlength="10000"
+          placeholder="상담 내용이나 특이사항을 기록하세요."></textarea>
+
+        <div class="row actions">
+          <button type="submit" class="primary">저장하기</button>
+          <button type="button" id="cancel">취소</button>
+          <button type="button" id="delete" class="danger" hidden>삭제</button>
+        </div>
+      </fieldset>
+    </form>
+    <p id="status" role="status" aria-live="polite"></p>
+  </section>
+</main>
+<footer>
+  같은 브라우저에서 같은 파일을 열면 기록을 다시 볼 수 있습니다.
+  시크릿 모드, 브라우저 데이터 삭제, 파일 위치 변경 시 기록이 유지되지 않을 수 있습니다.
+  기기 간 자동 공유와 백업 기능은 없습니다.
+</footer>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+const KEY = "esthetic-cheoeum-customers-v1";
+let customers = [];
+let selectedId = null;
+let baseline = "";
+let blocked = false;
+
+function today() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+function digits(value) { return value.replace(/\D/g, ""); }
+function formData() {
+  return {
+    name: $("name").value.trim(),
+    phone: $("phone").value.trim(),
+    visit: $("visit").value,
+    memo: $("memo").value
+  };
+}
+function snapshot() { return JSON.stringify(formData()); }
+function dirty() { return snapshot() !== baseline; }
+function mayLeave() {
+  return !dirty() || confirm("저장하지 않은 내용이 있습니다. 변경 내용을 버릴까요?");
+}
+function message(text, error = false) {
+  $("status").textContent = text;
+  $("status").classList.toggle("error", error);
+}
+function validRecord(c) {
+  return c && typeof c.id === "string" &&
+    typeof c.name === "string" && c.name.trim().length > 0 &&
+    typeof c.phone === "string" &&
+    typeof c.visit === "string" && /^\d{4}-\d{2}-\d{2}$/.test(c.visit) &&
+    typeof c.memo === "string";
+}
+function persist(next) {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(next));
+    customers = next;
+    return true;
+  } catch {
+    message("저장하지 못했습니다. 브라우저의 저장 공간과 저장 허용 설정을 확인하세요. 입력 내용은 그대로 남아 있습니다.", true);
+    return false;
+  }
+}
+function showForm(customer = null) {
+  selectedId = customer ? customer.id : null;
+  $("name").value = customer ? customer.name : "";
+  $("phone").value = customer ? customer.phone : "";
+  $("visit").value = customer ? customer.visit : today();
+  $("memo").value = customer ? customer.memo : "";
+  $("form-title").textContent = customer ? "손님 정보 조회·수정" : "손님 등록";
+  $("delete").hidden = !customer;
+  baseline = snapshot();
+  message("");
+  render();
+}
+function render() {
+  const query = $("search").value.trim().toLocaleLowerCase();
+  const numberQuery = digits(query);
+  const phoneOnly = /^[\d\s()+-]+$/.test(query);
+  const visible = customers.filter(c =>
+    !query || c.name.toLocaleLowerCase().includes(query) ||
+    c.phone.includes(query) ||
+    (phoneOnly && numberQuery && digits(c.phone).includes(numberQuery))
+  ).sort((a, b) => a.name.localeCompare(b.name, "ko"));
+
+  $("customers").replaceChildren();
+  $("count").textContent = query
+    ? `검색 결과 ${visible.length}명 / 전체 ${customers.length}명`
+    : `전체 ${customers.length}명`;
+  $("empty").hidden = visible.length > 0;
+  $("empty").textContent = customers.length
+    ? "검색된 손님이 없습니다."
+    : "등록된 손님이 없습니다. 손님을 등록해 주세요.";
+
+  visible.forEach(c => {
+    const li = document.createElement("li");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "customer";
+    button.setAttribute("aria-pressed", String(c.id === selectedId));
+    const info = document.createElement("span");
+    const name = document.createElement("strong");
+    const phone = document.createElement("span");
+    const date = document.createElement("small");
+    // 사용자 입력은 HTML이 아닌 일반 텍스트로 표시합니다.
+    name.textContent = c.name;
+    phone.textContent = c.phone;
+    date.textContent = `첫 방문 ${c.visit}`;
+    info.append(name, phone);
+    button.append(info, date);
+    button.addEventListener("click", () => {
+      if (blocked || !mayLeave()) return;
+      showForm(c);
+      $("form-title").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    li.append(button);
+    $("customers").append(li);
+  });
+}
+
+$("search").addEventListener("input", render);
+$("new").addEventListener("click", () => {
+  if (blocked || !mayLeave()) return;
+  showForm();
+  $("name").focus();
+});
+$("cancel").addEventListener("click", () => {
+  if (!mayLeave()) return;
+  showForm(customers.find(c => c.id === selectedId) || null);
+});
+$("phone").addEventListener("input", () => $("phone").setCustomValidity(""));
+
+$("form").addEventListener("submit", event => {
+  event.preventDefault();
+  if (blocked) return;
+  const data = formData();
+  if (!data.name) {
+    message("이름을 입력해 주세요.", true);
+    $("name").focus();
+    return;
+  }
+  const phoneDigits = digits(data.phone);
+  if (!/^[\d\s()+-]+$/.test(data.phone) ||
+      phoneDigits.length < 8 || phoneDigits.length > 15) {
+    $("phone").setCustomValidity("연락처를 숫자 8~15자리로 입력해 주세요. 하이픈과 공백도 사용할 수 있습니다.");
+    $("phone").reportValidity();
+    return;
+  }
+  if (data.visit > today()) {
+    message("최초 방문일은 오늘 또는 이전 날짜로 입력해 주세요.", true);
+    $("visit").focus();
+    return;
+  }
+  const editing = Boolean(selectedId);
+  const record = {
+    id: selectedId || `customer-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    ...data
+  };
+  const next = editing
+    ? customers.map(c => c.id === selectedId ? record : c)
+    : [...customers, record];
+  if (!persist(next)) return;
+  $("search").value = "";
+  showForm(record);
+  message(editing ? "수정한 정보를 저장했습니다." : "손님을 등록했습니다.");
+});
+
+$("delete").addEventListener("click", () => {
+  if (blocked) return;
+  const customer = customers.find(c => c.id === selectedId);
+  if (!customer) return;
+  if (!confirm(`${customer.name}님의 정보를 삭제할까요?\n삭제한 정보는 되돌릴 수 없습니다.`)) return;
+  if (!persist(customers.filter(c => c.id !== selectedId))) return;
+  showForm();
+  message("손님 정보를 삭제했습니다.");
+});
+window.addEventListener("beforeunload", event => {
+  if (dirty()) {
+    event.preventDefault();
+    event.returnValue = "";
+  }
+});
+// 다른 창에서 변경되면 덮어쓰기를 막기 위해 다시 열도록 안내합니다.
+window.addEventListener("storage", event => {
+  if (event.key === KEY || event.key === null) {
+    blocked = true;
+    $("fields").disabled = true;
+    $("new").disabled = true;
+    message("다른 창에서 저장 정보가 변경되었습니다. 입력 중인 내용이 있다면 따로 복사한 뒤 페이지를 새로고침하세요.", true);
+  }
+});
+
+try {
+  const raw = localStorage.getItem(KEY);
+  if (raw === null) {
+    const samples = [
+      { id: "sample-1", name: "가상손님 봄", phone: "010-0000-0001",
+        visit: "2026-11-01", memo: "가상 상담 기록입니다. 보습 관리 상담." },
+      { id: "sample-2", name: "가상손님 여름", phone: "010-0000-0002",
+        visit: "2026-11-03", memo: "화면 테스트용 가상 정보입니다." }
+    ];
+    localStorage.setItem(KEY, JSON.stringify(samples));
+    customers = samples;
+  } else {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || !parsed.every(validRecord) ||
+        new Set(parsed.map(c => c.id)).size !== parsed.length) {
+      throw new Error("Invalid storage");
+    }
+    customers = parsed;
+  }
+  showForm();
+} catch {
+  blocked = true;
+  showForm();
+  $("fields").disabled = true;
+  $("new").disabled = true;
+  message("저장 공간에 접근하지 못했거나 저장 데이터에 문제가 있습니다. 기존 데이터를 보호하기 위해 저장을 중지했습니다. 브라우저 설정을 확인하세요.", true);
+}
+</script>
+</body>
+</html>

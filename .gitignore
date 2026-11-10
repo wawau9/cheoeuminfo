@@ -1,0 +1,67 @@
+﻿# Local secrets and credentials
+.env
+.env.*
+.env*
+.ENV*
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+.npmrc
+.pypirc
+.netrc
+.aws/
+.ssh/
+.codex/
+secrets/
+credentials/
+secrets.*
+credentials.*
+*service-account*.json
+
+# Customer data, exports and database files (code backup only)
+data/
+private-data/
+exports/
+backups/
+*customer*.json
+*고객*.json
+*.csv
+*.tsv
+*.xls
+*.xlsx
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+
+# Test profiles, screenshots and generated helper files
+.qa/
+playwright-report/
+test-results/
+coverage/
+
+# Previous source copies and permission checks; original files remain on disk
+index.before-*.html
+/권한확인.txt
+
+# Dependencies, generated files and local editor/OS files
+node_modules/
+dist/
+build/
+.cache/
+.vscode/
+.idea/
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+Desktop.ini

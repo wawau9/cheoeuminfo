@@ -1,0 +1,81 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>에스테틱 처음 · 고객 관리</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+<span class="badge">부산 양정 · 원장님용</span>
+<h1>에스테틱 처음</h1><p class="sub">고객의 이야기와 방문 기록을 한곳에.</p>
+<p class="notice"><strong>가상 데이터용 로컬 테스트 버전</strong> · 실제 개인정보는 입력하지 마세요.</p>
+</header>
+<main>
+<p id="status" role="status" aria-live="polite" hidden></p>
+<section id="list-screen" class="panel" aria-labelledby="list-title">
+  <div class="row heading"><div><h2 id="list-title" tabindex="-1">고객 목록</h2><p class="sub">고객을 선택하면 상세정보를 볼 수 있어요.</p></div>
+  <div class="row"><button id="open-settings" type="button">관리 항목 설정</button><button id="new-customer" type="button" class="primary" data-write>+ 고객 등록</button></div></div>
+  <label for="search" class="field-label">이름·연락처 검색</label>
+  <input id="search" type="search" placeholder="이름 또는 연락처 일부를 입력하세요" autocomplete="off">
+  <p id="count" class="sub" aria-live="polite"></p><ul id="customers"></ul><p id="list-empty" class="empty" hidden></p>
+</section>
+<section id="customer-screen" class="panel" aria-labelledby="customer-title" hidden>
+  <button id="customer-back" type="button" class="back">← 돌아가기</button>
+  <h2 id="customer-title" tabindex="-1">고객 등록</h2><p class="sub">이름, 연락처, 최초 방문일은 필수 항목입니다.</p>
+  <form id="customer-form" autocomplete="off"><fieldset id="customer-fields">
+    <div class="form-grid">
+      <div><label for="name" class="field-label">이름 *</label><input id="name" required maxlength="50" placeholder="예: 가상손님 봄"></div>
+      <div><label for="phone" class="field-label">연락처 *</label><input id="phone" type="tel" required maxlength="20" inputmode="tel" placeholder="예: 010-0000-0001"></div>
+    </div>
+    <label for="first-visit" class="field-label">최초 방문일 *</label><input id="first-visit" type="date" required>
+    <label for="basic-memo" class="field-label">기본 메모</label><textarea id="basic-memo" maxlength="10000" placeholder="상담 내용이나 고객의 특이사항을 기록하세요."></textarea>
+    <div class="row actions"><button type="submit" class="primary" data-write>저장하기</button><button id="customer-cancel" type="button">취소</button></div>
+  </fieldset></form>
+</section>
+<section id="detail-screen" class="panel" aria-labelledby="detail-title" hidden>
+  <button id="detail-back" type="button" class="back">← 고객 목록</button>
+  <div class="row heading"><div><p class="sub">고객 상세정보</p><h2 id="detail-title" tabindex="-1"></h2></div><button id="edit-customer" type="button" data-write>기본정보 수정</button></div>
+  <dl class="info"><div><dt>연락처</dt><dd id="detail-phone"></dd></div><div><dt>최초 방문일</dt><dd id="detail-first-visit"></dd></div><div class="full"><dt>기본 메모</dt><dd id="detail-memo" class="memo"></dd></div></dl>
+  <div class="history"><div class="row heading"><div><h3>방문별 관리 기록</h3><p class="sub">최근 방문일부터 표시합니다.</p></div><button id="new-visit" type="button" class="primary" data-write>+ 관리 기록 추가</button></div>
+    <div id="visit-list"></div><p id="visit-empty" class="empty">아직 관리 기록이 없습니다.<br>방문한 날의 관리 내용을 남겨보세요.</p>
+  </div>
+  <div class="actions"><button id="delete-customer" type="button" class="danger" data-write>고객 삭제</button></div>
+</section>
+<section id="visit-screen" class="panel" aria-labelledby="visit-title" hidden>
+  <button id="visit-back" type="button" class="back">← 고객 상세정보</button><h2 id="visit-title" tabindex="-1">관리 기록 추가</h2><p id="visit-customer" class="sub"></p>
+  <form id="visit-form" autocomplete="off"><fieldset id="visit-fields">
+    <label for="visit-date" class="field-label">방문일 *</label><input id="visit-date" type="date" required>
+    <fieldset class="item-fieldset"><legend><strong>관리 항목 *</strong></legend><p class="sub" id="items-help">해당하는 항목을 모두 선택하세요.</p><div id="item-choices" class="choices" aria-describedby="items-help"></div></fieldset>
+    <label for="visit-memo" class="field-label">자유 메모</label><textarea id="visit-memo" maxlength="10000" placeholder="이번 방문의 관리 내용과 특이사항을 자유롭게 기록하세요."></textarea>
+    <div class="row actions"><button type="submit" class="primary" data-write>기록 저장하기</button><button id="visit-cancel" type="button">취소</button></div>
+  </fieldset></form>
+</section>
+<section id="settings-screen" class="panel" aria-labelledby="settings-title" hidden>
+  <button id="settings-back" type="button" class="back">← 고객 목록</button>
+  <h2 id="settings-title" tabindex="-1">관리 항목 설정</h2>
+  <p class="sub">관리 기록에서 선택할 항목을 추가하거나 이름을 바꿀 수 있어요.</p>
+  <p class="settings-note">항목을 삭제하거나 이름을 바꿔도 과거 기록은 당시 이름으로 유지됩니다.</p>
+  <div class="item-editor">
+    <h3 id="item-editor-title">새 항목 추가</h3>
+    <form id="item-form" autocomplete="off"><fieldset id="item-fields">
+      <label for="item-name" class="field-label">관리 항목 이름</label>
+      <input id="item-name" required maxlength="40" placeholder="예: 모공 관리" aria-describedby="item-name-help">
+      <p id="item-name-help" class="sub">최대 40자 · 같은 이름의 항목은 중복 등록할 수 없습니다.</p>
+      <div class="row item-editor-actions"><button id="item-submit" type="submit" class="primary" data-write>추가하기</button><button id="item-cancel" type="button" hidden>수정 취소</button></div>
+    </fieldset></form>
+  </div>
+  <h3>사용 중인 관리 항목</h3>
+  <ul id="settings-items"></ul>
+  <p id="settings-empty" class="empty" hidden>등록된 관리 항목이 없습니다.<br>위에서 새 항목을 추가해 주세요.</p>
+</section>
+</main>
+<footer>정보는 현재 기기의 현재 브라우저에 저장됩니다. 같은 위치의 index.html을 같은 브라우저로 열어주세요.<br>브라우저 데이터 삭제·시크릿 모드에서는 기록이 유지되지 않을 수 있습니다. 기기 간 공유와 정기 백업 기능은 없습니다.</footer>
+<script src="customers.js" defer></script>
+<script src="storage.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>
+
